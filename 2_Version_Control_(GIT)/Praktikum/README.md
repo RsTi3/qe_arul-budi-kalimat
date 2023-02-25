@@ -79,7 +79,7 @@ dengan project terserah kalian, praktikkan salah satu workflow serderhana dan bu
 
 JAWABAN : karena untuk menampilkan gitflow trunkbase (atau network) harus membuat repo baru yang public, kalau tugas utama repo github itu private tidak bisa melihat gitflow (bisa dengan membuat akun kita menjadi pro). maka saya akan membuat repository baru saja.
 
-![Commit Arul](D:\Kuliah\MSIB\ALTERA\TUGAS\qe_arul-budi-kalimat\2_Version_Control_(GIT)\Screenshot\SP2_S2-6.jpg)
+![Commit Arul](2_Version_Control_(GIT)/Screenshot/SE_-S1.jpg)
 
 Lalu gambar dibawah ini menjelaskan flow pengerjaan flow saya. dari berbagai branch push pull.
 
