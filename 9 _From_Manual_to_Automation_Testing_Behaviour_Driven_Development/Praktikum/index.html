@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Serenity Reports</title>
+
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.css"><!-- JQuery -->
+<script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script><!-- Required Stylesheets -->
+<link href="bootstrap-treeview/dist/bootstrap-treeview.min.css" rel="stylesheet">
+
+<!-- Required Javascript -->
+<script src="bootstrap-treeview/dist/bootstrap-treeview.min.js"></script><!-- DataTables -->
+<link type="text/css" href="datatables/1.13.1/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="datatables/1.13.1/datatables.min.js"></script>
+<script type="text/javascript" src="datatables/1.13.1/time-elapsed-dhms.js"></script>
+
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+
+<script>
+    jQuery.fn.dataTable.ext.type.order['time-elapsed-dhms-pre'] = function(data) {
+
+        var matches = data.match(/^(\d+(?:\.\d+)?)\s*([a-z]+)/i);
+        var multipliers = {
+            ms: 1,
+            s: 1000,
+            m: 60000,
+            h: 3600000,
+            d: 86400000
+        };
+
+        if (matches) {
+            var multiplier = multipliers[matches[2].toLowerCase()];
+            return parseFloat(matches[1]) * multiplier;
+        } else {
+            return -1;
+        };
+    };
+</script>
+<link rel="stylesheet" href="css/core.css"/>
+<link rel="stylesheet" href="css/link.css"/>
+<link type="text/css" media="screen" href="css/screen.css" rel="Stylesheet"/>
+<!--CHART.JS-->
+<script src="chartjs/chart.js"></script>
+<script src="chartjs/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="chartjs/patternomaly.min.js"></script>
+<script>
+    // Register the plugin to all charts:
+    Chart.register(ChartDataLabels);
+</script>
+<!-- JQuery-UI -->
+<link type="text/css" href="jqueryui/1.11.2-start/jquery-ui.min.css" rel="Stylesheet" />
+<script type="text/javascript" src="jqueryui/1.11.2-start/jquery-ui.min.js"></script><!-- DataTables -->
+<link type="text/css" href="datatables/1.13.1/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="datatables/1.13.1/datatables.min.js"></script>
+<script type="text/javascript" src="datatables/1.13.1/time-elapsed-dhms.js"></script>
+
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+
+<script>
+    jQuery.fn.dataTable.ext.type.order['time-elapsed-dhms-pre'] = function(data) {
+
+        var matches = data.match(/^(\d+(?:\.\d+)?)\s*([a-z]+)/i);
+        var multipliers = {
+            ms: 1,
+            s: 1000,
+            m: 60000,
+            h: 3600000,
+            d: 86400000
+        };
+
+        if (matches) {
+            var multiplier = multipliers[matches[2].toLowerCase()];
+            return parseFloat(matches[1]) * multiplier;
+        } else {
+            return -1;
+        };
+    };
+</script>
+
+
+
+
+    <script class="code" type="text/javascript">$(document).ready(function () {
+
+            $("#scenario-results").DataTable({
+                "order": [[0, "asc",], [3, "asc",]],
+                "language": {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                },
+                columnDefs: [
+                    {type: 'time-elapsed-dhms', targets: 4}
+                ]
+            })
+            $("#manual-scenario-results").DataTable({
+                "order": [[0, "asc",], [1, "asc",]],
+                "language": {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                },
+            })
+
+            // Results table
+            $('#test-results-table').DataTable({
+                "order": [[0, "asc",], [3, "asc",]],
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]]
+            });
+
+            $('#evidence-table').DataTable({
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+            $(".feature-coverage-table").DataTable({
+                searching: true,
+                paging: false,
+                info: false
+            });
+
+            $(".feature-coverage-table-with-pagination").DataTable({
+                searching: true,
+                order: [[0, "asc",]],
+                pageLength: 10,
+                language: {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                }
+            });
+        });
+    </script>
+</head>
+
+<body class="results-page">
+<div id="topheader">
+    <div id="topbanner">
+        <div id="logo"><a href="index.html"><img src="images/serenity-logo.png" border="0"/></a></div>
+        <div id="projectname-banner" style="float:right">
+            <span class="projectname">
+                <span class="projecttitle">Serenity and Cucumber Quick Start</span>
+                <span class="projectsubtitle"></span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="middlecontent">
+
+    <div id="contenttop">
+        <div class="middlebg">
+        <span class="breadcrumbs"><a href="index.html">Home</a>
+        </span>
+        </div>
+        <div class="rightbg"></div>
+    </div>
+
+    <div class="clr"></div>
+    <!--/* starts second table*/-->
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#"><i class="bi bi-journal-check"></i> Overall Test Results</a>
+        </li>
+        <li >
+            <a href="capabilities.html"><i class="bi bi-journal-text"></i> Requirements</a>
+        </li>
+        <li >
+            <a href="576946480b52ad056d6f5bddf874399c83582ecf90963cc074a14c70580e7d9f.html"><i class="bi bi-chat-text"></i> Features</a>
+        </li>
+    </ul>
+    <span class="date-and-time"><a href="build-info.html"><i class="bi bi-info-circle"></i></a> Report generated 09-04-2023 10:56:34</span>
+    <br style="clear:left"/>
+</div>
+    <div class="clr"></div>
+    <div id="beforetable"></div>
+    <div id="results-dashboard">
+        <div class="middlb">
+            <div class="table">
+
+                <h2>Test Results: All Tests</h2>
+                <table class='overview'>
+                    <tr>
+                        <td width="375px" valign="top">
+                            <div class="test-count-summary">
+                                <div class="test-count-title">
+                                    29 tests
+
+                                    
+
+                                </div>
+                            </div>
+
+                            <div>
+                                <ul class="nav nav-tabs">
+                                    <li class="active">
+                                        <a data-toggle="tab" href="#summary"><i class="bi bi-house-door"></i>
+                                            Summary</a>
+                                    </li>
+                                    <li>
+                                        <a data-toggle="tab" href="#tests"><i class="bi bi-speedometer"></i> Test
+                                            Results</a>
+                                    </li>
+                                </ul>
+
+
+                                <div class="card border">
+                                    <div class="tab-content" id="pills-tabContent">
+                                        <div id="summary" class="tab-pane fade in active">
+                                            <div class="container-fluid">
+                                                <div class="dashboard-charts row">
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <!-- PIE CHART -->
+                                                        <h4><i class="bi bi-pie-chart"></i> Overview</h4>
+                                                            <div class="chart-container">
+                                                                <canvas id="resultChart" height="200px"></canvas>
+                                                            </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <h4><i class="bi bi-check-square"></i> Test Outcomes</h4>
+                                                        <!-- Severity bar chart -->
+                                                        <div class="chart-container">
+                                                            <canvas id="severityChart" height="200px"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <h4><i class="bi bi-graph-up"></i> Test Performance</h4>
+
+                                                        <!-- Duration bar chart -->
+                                                        <div class="chart-container">
+                                                            <canvas id="durationChart" height="200px"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                        <div class="col-lg-8 col-md-8 col-sm-9">
+                                                            <!-- High level coverage bar chart -->
+                                                            <div class="chart-container">
+                                                                <h3><i class="bi bi-reception-3"></i> Functional Coverage Overview</h3>
+                                                                <h4>Features</h4>
+                                                                <canvas id="coverageChart"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-6">
+                                                        <div>
+                                                            <h3><i class="bi bi-speedometer2"></i> Key Statistics</h3>
+                                                            <div>
+                                                                <table class="table table-striped table-hover">
+                                                                    <tbody>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-card-checklist"></i> Number of Scenarios
+                                                                        </td>
+                                                                        <td>29</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-caret-right"></i> Number of Test Cases
+                                                                        </td>
+                                                                        <td>29</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-flag-fill"></i> Tests Started
+                                                                        </td>
+                                                                        <td>Apr 09, 2023 10:51:16</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-stop-circle"></i> Tests
+                                                                            Finished
+                                                                        </td>
+                                                                        <td>Apr 09, 2023 10:56:25</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-stopwatch"></i> Total
+                                                                            Duration
+                                                                        </td>
+                                                                        <td> 5m 8s</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-trophy"></i> Fastest Test
+                                                                        </td>
+                                                                        <td>3s</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-skip-start"></i> Slowest
+                                                                            Test
+                                                                        </td>
+                                                                        <td>16s</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-stopwatch"></i> Average
+                                                                            Execution Time
+                                                                        </td>
+                                                                        <td>10s</td>
+                                                                    </tr>
+                                                                    <tr scope="row">
+                                                                        <td>
+                                                                            <i class="bi bi-stopwatch-fill"></i> Total
+                                                                            Execution Time
+                                                                        </td>
+                                                                        <td> 5m 2s</td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container-fluid">
+                                                    <div class="row">
+                                                        <div class="col-sm-11">
+                                                            <h3>Functional Coverage Details</h3>
+
+
+                                                                    <h4>Features</h4>
+
+                                                                    <table class="table feature-coverage-table" id="Feature">
+                                                                        <thead>
+                                                                        <tr>
+                                                                            <th>Feature</th>
+                                                                            <th style="width:1em;">Scenarios</th>
+                                                                            <th style="width:1em;">Test&nbsp;Cases</th>
+                                                                            <th style="width:1em;">%&nbsp;Pass</th>
+                                                                            <th style="width:1em;">Result</th>
+                                                                            <th>Coverage</th>
+                                                                        </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html" > LinkedIn Home</a>
+                                                                                </td>
+                                                                                <td>11</td>
+                                                                                <td>11</td>
+                                                                                <td>27%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 27.272727%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="11"
+                                                                                                 title="27% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 72.727273%; background-color: #fd938e"
+                                                                                                 aria-valuenow="11"
+                                                                                                 title="73% failure"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html" > Sepulsa</a>
+                                                                                </td>
+                                                                                <td>18</td>
+                                                                                <td>18</td>
+                                                                                <td>44%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 44.444444%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="18"
+                                                                                                 title="44% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 55.555556%; background-color: #fd938e"
+                                                                                                 aria-valuenow="18"
+                                                                                                 title="56% failure"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h3>Test Failure Overview</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h4>Most Frequent Failures</h4>
+                                                            <table class="table" style="width:40vw;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="af346bdb77858e8b9dd8bd5bfe57888793cf79caf5c16bf7fa2e267a71b7c409.html"><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> Element should be present exception</a>
+                                                                        </td>
+                                                                        <td><span
+                                                                                    class="badge failure-badge">17</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="a0ace456df350117335ad374e8d62c0d8c978db868ea1469e0c5ba32aac965ea.html"><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> Assertion error</a>
+                                                                        </td>
+                                                                        <td><span
+                                                                                    class="badge failure-badge">1</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h4>Most Unstable Features</h4>
+                                                            <table class="table" style="width:40vw;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge failure-badge">72%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge failure-badge">55%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                            <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Tags</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <div>
+                                    <a href="19b76ff9768ee6a6dc0425d64836a848d82ca7058322370e67d74a60ecbfb42e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa20rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="f9dab6f453cc8d48a9befb8626ede58586b75a7f0cc4182a0295f5f466ad0a4d.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa10rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="2c68c2b379341455c98fe30b40f784e7f20c8d7a73ca0713388409509087c3be.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa30rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="10c66b0329ef8ccdb17fa0c03a75d65d8eb5020e4d10878e5f50c8365f204100.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa50rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="75cb39126d7421816c9bf458d415df6b824927af1a3e344b0a89e46f6826d0f9.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa40rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="91c9aa1c2d53ec19feed09e96900013d7aec1bdfbcb4772ea762f953eff803e9.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa100rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="c721517496ffad35fe9a5d73f07a9bd15eb22da3cff8328e1d9f7ec70655c6b0.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Login&nbsp;&nbsp;&nbsp;5
+                                    </span>
+                                    </a>
+                                    <a href="3e66c4f4be5be4ea1e4c27fc8090f9355c91d213f1c928bc53bce553c66f08c6.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa90rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="3e88db10bc148d3650aba8a93bff55305b9c0b1fb9750c9265691a372ce77bc3.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Login Linked In Success&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="9518fa75f7d03cf8a7d38044b333e642fcb85c9f8aab113c766224fc0d609df7.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa25rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d1ebad1b0895f4d78c3c18482a125faf042255f37c1187bde2284b985c989953.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Create Post With Video&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="ee473f6a75d5837f35589131e969b1ee9b48dfe933d3990ae179db752590763b.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa80rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d4b6761d6b980fb39fbfb5621d6b5d658ed229e9fc891e21c01c510e9d6e00e2.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa60rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="13446919ce8e5e3b8a440387be553b4038f7c5544cde994fdd70bbb29e92d68d.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa70rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="0eaf3d21f621bbedcd58646be539740c4ffdeaf5b30d538e8fcded88e1e0b21a.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa300rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d4cb9733391b7a1b4992149efb5c9b06a09f4a1b8a58a7f4712e9771e270d7f5.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa15rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="cd1cf25b4776dde4d8f1dee918276cbe1e088c1fdd521d4e21b6b857f4fe4790.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Comment Post&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="a27346e3c361d072a3199851d5d898d1a0eea1917a772ed510acbce091d0a3bc.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa200rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="2007e6884341c2f7a9be5eb652e1f4b229f688bc6152bb201642729905a49915.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Linked In&nbsp;&nbsp;&nbsp;11
+                                    </span>
+                                    </a>
+                                    <a href="4249da627e399fad8f381f6cbe555eb109358f7f8c9edf58bef08f1ceff66562.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Repost&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="874412a277cfcee98bdd5d0b29b211dd9436b4a29cbda9afcc7a1d0ea8399a90.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Bayar Indihome Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d3c43b94d661e07ae762e141d24cc69b3587c1223776cbc650dc83311dd73aa9.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Like Post&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="64e77614ec4413057e1317d59c26049aec47a3ac4cb520efaf5dc25fd47aadc5.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Normal Positive&nbsp;&nbsp;&nbsp;26
+                                    </span>
+                                    </a>
+                                    <a href="3be9c9798eab451f588b9b090dd288f03f44421a523acf6230d6b1db5af092bd.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Create Post With Photo&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="307e80d60e63d08ad17bd105e7b7776fefe0dc48501c5129db2360caa41b2446.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Normal Negative&nbsp;&nbsp;&nbsp;3
+                                    </span>
+                                    </a>
+                                    <a href="e376f65fe8afaf9bd8986605dcab30b890483f618951d895607d284263ee2a46.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Login Linked In Failed&nbsp;&nbsp;&nbsp;3
+                                    </span>
+                                    </a>
+                                    <a href="c0b2f16ea61a63ad94f2b0499a73e3d9afefc6215e5152afc279ae29211ff5b6.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Sepulsa&nbsp;&nbsp;&nbsp;18
+                                    </span>
+                                    </a>
+                                    <a href="62fad7f76ea33210cb9dba131992dd949b992b9ba6e7b7a27177f4d772ba33e1.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa500rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="c40f474bcd867a6a5cab3e6aea81a629e7e14dadf124c4b930b3ec8b9bd2ce8e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Beli Pulsa5rb Di Sepulsa&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4aba2df9ede562dbcc8c5d2400f76851fc1e8c24d21762b63735b7d219f552b7.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Create Post&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="b25216faf3a00031121d9df63dae291fc7e52e7719933d14f746511a5ef73431.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Create Post With Event&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+                                            </div>
+                                        </div>
+                                        <div id="tests" class="tab-pane fade">
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <h3><i class="bi bi-gear"></i> Automated Tests</h3>
+
+                                                            <table class="scenario-result-table table" id="scenario-results">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>feature</th>
+                                                                    <th class="test-name-column">Scenario</th>
+                                                                    <th>Steps</th>
+                                                                    <th>Started</th>
+                                                                    <th>Total Duration</th>
+                                                                    <th>Result</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="c40969c3fae389dc526f536533da49834a6a6530ed61539d0821f9aa4a87ca61.html">User Can Login With Correct Username & Password</a></td>
+                                                                            <td>5</td>
+                                                                            <td>10:51:16</td>
+                                                                            <td>13s 459ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="a12f3374ae83b4dfe59adc62a465d4194f676a1a84b7f90dac5998f6bda77e41.html">User cannot login with incorrect username and incorrect password</a></td>
+                                                                            <td>5</td>
+                                                                            <td>10:51:30</td>
+                                                                            <td>3s 472ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="49cbfbf5c599cda2658eb0b729a5f007d5c0b6871e70fd7883430fc322ea90f1.html">User cannot login with correct username and incorrect password</a></td>
+                                                                            <td>5</td>
+                                                                            <td>10:51:34</td>
+                                                                            <td>4s 033ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="d37ca8a8a63a19ce03d1b823f7d056e7c4c13f66f02a6d94544e75961f4ace01.html">User cannot login with incorrect username and correct password</a></td>
+                                                                            <td>5</td>
+                                                                            <td>10:51:38</td>
+                                                                            <td>3s 343ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="3ad5eef2bf4f8dd7e54bafde9b19e73a3f47873f1d0abedc4fa1a9a32d6e2f8e.html">Create New Post</a></td>
+                                                                            <td>9</td>
+                                                                            <td>10:51:42</td>
+                                                                            <td>15s 969ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="9f679092c07da97abb138257304259a9b94a2993e5e7a44ca250aea7c90249bd.html">Comment on our own post</a></td>
+                                                                            <td>13</td>
+                                                                            <td>10:51:58</td>
+                                                                            <td>14s 990ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="009a97c81825c418608653ab0040016db57f2679dac164888ef76d515fb28307.html">Repost our own post</a></td>
+                                                                            <td>11</td>
+                                                                            <td>10:52:13</td>
+                                                                            <td>14s 985ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="ad0c85c90d1218283af3970943e361dcc74ed8d15b012baa5d6dc015242d105b.html">Create New Post with Photo</a></td>
+                                                                            <td>8</td>
+                                                                            <td>10:52:28</td>
+                                                                            <td>16s 360ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="3a5b49795035e84eb18eae8f89c5ee7a9dd3c46662fa2ec05c8cfe7f1552d61e.html">Create New Post with Video</a></td>
+                                                                            <td>8</td>
+                                                                            <td>10:52:45</td>
+                                                                            <td>16s 104ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="86d295eca6909685632bf2fce469dffe4191d009665703cddfbc6f48fdf2c6a0.html">Create New Post with Event</a></td>
+                                                                            <td>8</td>
+                                                                            <td>10:53:01</td>
+                                                                            <td>15s 582ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html">LinkedIn Home</a>
+                                                                            </td>
+                                                                            <td><a href="0240f76a951002f83daf132ceaa9e5a712f4e6596bafab5cf7b08fa4bd8e8571.html">Like our own post</a></td>
+                                                                            <td>11</td>
+                                                                            <td>10:53:17</td>
+                                                                            <td>15s 670ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="4f3f7c4f12cfd02001e511b8a90d615b6da3ae9c8b315a94694d747b4623a3f4.html">User login into website Sepulsa.com</a></td>
+                                                                            <td>6</td>
+                                                                            <td>10:53:33</td>
+                                                                            <td>5s 320ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="ec49bea9b237341f1469014204eac713fac446c994a74f2f1d6f511c6ae29b65.html">User can choose pulsa tri 5 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:53:38</td>
+                                                                            <td>9s 159ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="1425f216cedc9b9380bb258a3993867c3d9fb1a38ff9587ecfec8135edbb4bb5.html">User can choose pulsa tri 10 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:53:48</td>
+                                                                            <td>8s 838ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="95a5d9517fe3f79d396627357a04f439dd1b7889a79f2e657a4707a3aaca0c22.html">User can choose pulsa tri 15 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:53:57</td>
+                                                                            <td>9s 153ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="5be717ef228e3a2ea71df8badbc316af1052a23804e2f651d5436b05662b102f.html">User can choose pulsa tri 20 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:06</td>
+                                                                            <td>8s 618ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="8677edbb07d774c5e9d2a6a4e6482c856f8e1daa675dad416f7baec05d0107d1.html">User can choose pulsa tri 25 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:15</td>
+                                                                            <td>9s 256ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="02f817a7a20e83e9055ec150e90ac49da8c7aefa8fa2e391c37cb17444311c74.html">User can choose pulsa tri 30 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:24</td>
+                                                                            <td>6s 665ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="4e73f1b2ea030791843f8c519418d88b1e1d02144fe7d254ce3d04da3eb900bf.html">User can choose pulsa tri 40 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:31</td>
+                                                                            <td>12s 444ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="83f12bddb639cb5f420a3983f8ffeda17d7a6ee488eea793d5e1b6216ebaf2e3.html">User can choose pulsa tri 50 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:44</td>
+                                                                            <td>12s 746ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="feaa2e1938884d9603e280e4e8f511bb553b5bd045865df6c069d56f139c5063.html">User can choose pulsa tri 60 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:54:57</td>
+                                                                            <td>7s 762ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="3da89d37dcb31d3664e92c88b7c717cdc4c71270b582f5da086847932e5025cc.html">User can choose pulsa tri 70 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:05</td>
+                                                                            <td>12s 265ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="41c05676d9a4c1a4c0e5a56c885f4384e5e8048d65c62d3c5c9502a931ebacb1.html">User can choose pulsa tri 80 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:17</td>
+                                                                            <td>7s 857ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="088852e06e3002dd94d44b8436b42ff3fc7711ae72a0763f6ea8aa2daa25c4e5.html">User can choose pulsa tri 90 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:25</td>
+                                                                            <td>7s 766ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="d2323cbf8e2c98f26e6bdbe242857c69cddef37398bb56522437f4bc2e3756c5.html">User can choose pulsa tri 100 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:33</td>
+                                                                            <td>12s 575ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="f9066529c6a22e06533ee4e0ae89ba3748e416676933f865fa980260ec8a8952.html">User can choose pulsa tri 200 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:46</td>
+                                                                            <td>8s 146ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="eeead4c6a5ad29f3e2849b73b7a4579f77b728809e729408a6dc3cd5f1d26865.html">User can choose pulsa tri 300 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:55:54</td>
+                                                                            <td>9s 502ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="5e6a81a5f31edde64a93a8d43029e99fa4bd4ed61b9dc2beccc42fbe47b68450.html">User can choose pulsa tri 500 ribu</a></td>
+                                                                            <td>10</td>
+                                                                            <td>10:56:04</td>
+                                                                            <td>12s 727ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html">Sepulsa</a>
+                                                                            </td>
+                                                                            <td><a href="9e2bf0b9e042ef8bf2a674695b7787a89fe45306eb0ad36a2e3357b200aa99f8.html">User can choose Indihome</a></td>
+                                                                            <td>12</td>
+                                                                            <td>10:56:17</td>
+                                                                            <td>7s 836ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <h3><i class="bi bi-hand-index-thumb"></i> Manual Tests</h3>
+
+                                                            No manual tests were recorded
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="beforefooter"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="version">Serenity BDD version 3.5.1</span>
+        </div>
+    </div>
+</div>
+
+<!-- Chart data -->
+    <!-- PIE CHART -->
+    <script>
+
+        // The results pie chart
+        const outcomeChartCtx = document.getElementById('resultChart');
+
+        // Options define for display value on top of bars
+        const outcomeDetailsReports = [
+            { title: 'Passing Test Cases', link: "01f5288b80adbd3af52a8ed68a4a616d3164f750229f80da1ef344382d948835.html" },
+            { title: 'Pending Test Cases', link: "bde4fca42ca8baa0fe2eac76a241c84327dfe4ca903a1daa7cae83a1035d4745.html" },
+            { title: 'Ignored Test Cases', link: "c1b352893c3d69e59317fd825f20a75f987a859afe98fb4434f47dce70c48fd4.html" },
+            { title: 'Skipped Test Cases', link: "7409dbb9985b960343780b303d8028480bd55e9aebd855c90eff0a000e21ccc8.html" },
+            { title: 'Aborted Test Cases',  link: "91152e032be7fe762aa6823d6424278e2c72efeb7622a5e63c7bf5980b4fd8a0.html"},
+            { title: 'Failed Test Cases', link: "da5b0c51b332adf0ef993a9f086d6a1b51a3d800248ec6ae281212092f35bd37.html"  },
+            { title: 'Broken Test Cases', link: "c8a926210aeff57f8aa7ea799262d4b730915a909cd5ecd6a705b1fa13bc7aa8.html"    },
+            { title: 'Compromised Test Cases',  link: "02dd8f8ada4c10b8ebb5c1f309605a6f7c147adc21bcf5c55829855ba045ff03.html" },
+        ]
+        const outcomeData = {
+            labels: ['Passing Test Cases', 'Pending Test Cases', 'Ignored Test Cases', 'Skipped Test Cases', 'Aborted Test Cases', 'Failed Test Cases', 'Broken Test Cases', 'Compromised Test Cases','Undefined Test Cases'],
+            datasets: [{
+                label: 'Test Results',
+                fill: false,
+                data: [11,0,0,0,0,18,0,0],
+                backgroundColor: ['rgba(153,204,51,0.5)','rgba(165, 199, 238, 0.5)','rgba(168, 168, 168, 0.5)','rgba(238, 224, 152, 0.75)','rgba(255, 153, 102, 0.5)','rgba(255, 22, 49, 0.5)','rgba(255, 97, 8, 0.5)','rgba(255, 104, 255, 0.5)','rgba(83, 50, 168, 0.5)'],
+                borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                borderWidth: 1,
+            }]
+        }
+        const outcomeOptions = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        let percentage = (value * 100 / sum).toFixed(0) + "%";
+                        if (percentage === '0%' || percentage === 'NaN%') {
+                            return '';
+                        } else {
+                            return percentage;
+                        }
+                    },
+                },
+            }
+        }
+
+        const outcomeChart = new Chart(outcomeChartCtx, {
+            type: 'doughnut',
+            data: outcomeData,
+            options: outcomeOptions,
+            plugins: [
+                {
+                    id: 'text',
+                    beforeDraw: function (chart, a, b) {
+                        var width = chart.width,
+                            height = chart.height,
+                            ctx = chart.ctx;
+
+                        ctx.restore();
+                        var fontSize = (height / 200).toFixed(1);
+                        ctx.font = fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+
+                        var text = "38%"
+                        textX = 10 + Math.round((width - ctx.measureText(text).width) / 2);
+                        textY = (height / 2) - 40;
+
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+        });
+
+        function clickHandler(click) {
+            const points = outcomeChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(outcomeDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+        outcomeChartCtx.onclick = clickHandler;
+    </script>
+    <!-- END PIE CHART -->
+
+    <!-- SUMMARY BAR CHART -->
+    <script>
+
+        // The Severity bar chart
+        const severityChartCtx = document.getElementById('severityChart');
+
+        // Options define for display value on top of bars
+
+        const severityDetailsReports = [
+            { title: 'Passing Scenarios', link: "01f5288b80adbd3af52a8ed68a4a616d3164f750229f80da1ef344382d948835.html" },
+            { title: 'Pending Scenarios', link: "bde4fca42ca8baa0fe2eac76a241c84327dfe4ca903a1daa7cae83a1035d4745.html" },
+            { title: 'Ignored Scenarios', link: "c1b352893c3d69e59317fd825f20a75f987a859afe98fb4434f47dce70c48fd4.html" },
+            { title: 'Skipped Scenarios', link: "7409dbb9985b960343780b303d8028480bd55e9aebd855c90eff0a000e21ccc8.html" },
+            { title: 'Aborted Scenarios',  link: "91152e032be7fe762aa6823d6424278e2c72efeb7622a5e63c7bf5980b4fd8a0.html"},
+            { title: 'Failed Scenarios', link: "da5b0c51b332adf0ef993a9f086d6a1b51a3d800248ec6ae281212092f35bd37.html"  },
+            { title: 'Broken Scenarios', link: "c8a926210aeff57f8aa7ea799262d4b730915a909cd5ecd6a705b1fa13bc7aa8.html"    },
+            { title: 'Compromised Scenarios',  link: "02dd8f8ada4c10b8ebb5c1f309605a6f7c147adc21bcf5c55829855ba045ff03.html" },
+        ]
+        const severityData = {
+            labels: ['Passing', 'Pending', 'Ignored', 'Skipped', 'Aborted', 'Failed', 'Broken', 'Compromised'],
+            datasets: [
+                {
+                    label: 'Automated',
+                    data: [11,0,0,0,0,18,0,0],
+                    backgroundColor: ['rgba(153,204,51,0.5)','rgba(165, 199, 238, 0.5)','rgba(168, 168, 168, 0.5)','rgba(238, 224, 152, 0.75)','rgba(255, 153, 102, 0.5)','rgba(255, 22, 49, 0.5)','rgba(255, 97, 8, 0.5)','rgba(255, 104, 255, 0.5)','rgba(83, 50, 168, 0.5)'],
+                    borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                    borderWidth: 1
+                },
+                {
+                    label: 'Manual',
+                    data: [0,0,0,0,0,0,0,0],
+                    backgroundColor: ['rgba(153,204,51,0.25)','rgba(165, 199, 238, 0.25)','rgba(168, 168, 168, 0.25)','rgba(238, 224, 152, 0.375)','rgba(255, 153, 102, 0.25)','rgba(255, 22, 49, 0.25)','rgba(255, 97, 8, 0.25)','rgba(255, 104, 255, 0.25)','rgba(83, 50, 168, 0.25)'],
+                    borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                    borderWidth: 1
+                },
+
+            ]
+        }
+        const severityOptions = {
+            responsive: true,
+            skipNull: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                }
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        if (value === 0) {
+                            return '';
+                        } else {
+                            return value;
+                        }
+                    },
+                }
+            }
+        }
+        const severityChart = new Chart(severityChartCtx, {
+            type: 'bar',
+            data: severityData,
+            options: severityOptions
+        });
+
+        function clickHandler(click) {
+            const points = severityChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(severityDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+        severityChartCtx.onclick = clickHandler;
+    </script>
+    <!-- END SUMMARY CHART -->
+
+    <!-- DURATION CHART -->
+    <script>
+
+        // Options define for display value on top of bars
+        const durationDetailsReports = [
+                {title: "Under 1 second", link: "2a5b6a7be0f08df02d8ab0b4d4c68648c2695c6c7ef0658c71de4d42b1415b18.html"},
+                {title: "1 to 10 seconds", link: "6c5512236937b92cd7a296b24edb966c2bd94be46b8910f8b129a42d6150eb25.html"},
+                {title: "10 to 30 seconds", link: "34658a1663fcf042bd7acb3325affbe4e647c8acd84d0228be2f52e1381e61b9.html"},
+                {title: "30 to 60 seconds", link: "5698da923f295f46ce5ab64ced2311fc60caa4e36b32112606d3adcfdce3f60b.html"},
+                {title: "1 to 2 minutes", link: "c68fd6639ab29c4b0ac02a78bc39f4e22557bcaa40ef14c903ac0e584626edfe.html"},
+                {title: "2 to 5 minutes", link: "3ce388ea8511800032930896a3e5ba2c4f80e46f1a10b143b67009baf212c6a0.html"},
+                {title: "5 to 10 minutes", link: "376e1536bb68812a880e84ca7a0c6d104d541788793f22a36b4462a6a9aaa344.html"},
+                {title: "10 minutes or over", link: "24bba6f5cf4f06c7d46bf8990b86c4fbc1ce4ce201644ddf42661c84031e1c90.html"},
+        ]
+        // The Severity bar chart
+        const durationChartCtx = document.getElementById('durationChart');
+
+        // Options define for display value on top of bars
+
+        const durationData = {
+            labels: ['Under 1 second','1 to 10 seconds','10 to 30 seconds','30 to 60 seconds','1 to 2 minutes','2 to 5 minutes','5 to 10 minutes','10 minutes or over'],
+            datasets: [{
+                label: 'Number of tests per duration',
+                fill: false,
+                data: ['0','16','13','0','0','0','0','0'],
+                backgroundColor: 'rgba(83, 146, 255,0.5)',
+                borderColor: 'rgba(83, 146, 255, 1)',
+            }]
+        }
+        const durationOptions = {
+            responsive: true,
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        if (value > 0) {
+                            return value;
+                        } else {
+                            return '';
+                        }
+                    },
+                },
+                tooltip: {
+                    enabled: true,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: (data) => {
+                            return data.parsed.y + ' tests'
+                        }
+                    },
+                },
+            },
+        }
+
+        const durationChart = new Chart(durationChartCtx, {
+            type: 'bar',
+            data: durationData,
+            options: durationOptions
+        });
+
+        function durationClickHandler(click) {
+            const points = durationChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(durationDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+
+        durationChartCtx.onclick = durationClickHandler;
+    </script>
+    <!-- END DURATION CHART -->
+
+
+
+    <!-- COVERAGE BAR CHART -->
+    <script>
+
+        // The coverage bar chart
+        const coverageChartCtx = document.getElementById('coverageChart');
+
+        // Options define for display value on top of bars
+
+        const coverageReports = [
+            {
+                title: 'LinkedIn Home',
+                result: 'FAILURE',
+                link: "c10dbbe6905b5bf1e4d6c923c5861f749a570a171e65c161671be991213b27aa.html"
+            },
+            {
+                title: 'Sepulsa',
+                result: 'FAILURE',
+                link: "1711ad9f92f025cd8991519ac4156b54f850709dda376b3d060967c0a87e8314.html"
+            },
+        ]
+        const coverageData = {
+            labels: [
+                'LinkedIn Home',
+                'Sepulsa',
+            ],
+            datasets: [
+                {
+                    label: ['Passing Tests'],
+                    data: [11,18],
+                    backgroundColor: [ 'rgba(153,204,51,0.5)' ]
+                },
+                {
+                    label: ['Pending Tests'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(165, 199, 238, 0.5)' ]
+                },
+                {
+                    label: ['Ignored Tests'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(168, 168, 168, 0.5)' ]
+                },
+                {
+                    label: ['Skipped Tests'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(238, 224, 152, 0.75)' ]
+                },
+                {
+                    label: ['Aborted Tests'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(255, 153, 102, 0.5)' ]
+                },
+                {
+                    label: ['Failed Tests'],
+                    data: [11,18],
+                    backgroundColor: [ 'rgba(255, 22, 49, 0.5)' ]
+                },
+                {
+                    label: ['Errors'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(255, 97, 8, 0.5)' ]
+                },
+                {
+                    label: ['Compromised Tests'],
+                    data: [null,null],
+                    backgroundColor: [ 'rgba(255, 104, 255, 0.5)' ]
+                },
+            ]
+        }
+        const coverageOptions = {
+            responsive: true,
+            indexAxis: 'y',
+            // barPercentage: ,
+            barThickness: 'flex',
+            maxBarThickness: 30,
+            minBarLength: 2,
+            skipNull: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                }
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold'
+                },
+                tooltip: {
+                    enabled: true,
+                    usePointStyle: true,
+                },
+            },
+        }
+
+        const coverageChart = new Chart(coverageChartCtx, {
+            type: 'bar',
+            data: coverageData,
+            options: coverageOptions
+        });
+
+        function coverageClickHandler(click) {
+            const points = coverageChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                if (coverageReports[firstPoint.index].link) {
+                    window.open(coverageReports[firstPoint.index].link, "_self")
+                }
+            }
+        }
+
+        coverageChartCtx.onclick = coverageClickHandler;
+    </script>
+    <!-- END COVERAGE CHART -->
+
+</body>
+</html>
