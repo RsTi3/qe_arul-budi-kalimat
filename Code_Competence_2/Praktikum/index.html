@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Serenity Reports</title>
+
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="bootstrap-icons/bootstrap-icons.css">
+<!-- JQuery -->
+<script type="text/javascript" src="scripts/jquery-1.11.1.min.js"></script><!-- Required Stylesheets -->
+<link href="bootstrap-treeview/dist/bootstrap-treeview.min.css" rel="stylesheet">
+
+<!-- Required Javascript -->
+<script src="bootstrap-treeview/dist/bootstrap-treeview.min.js"></script><!-- DataTables -->
+<link type="text/css" href="datatables/1.13.1/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="datatables/1.13.1/datatables.min.js"></script>
+<script type="text/javascript" src="datatables/1.13.1/time-elapsed-dhms.js"></script>
+
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+
+<script>
+    jQuery.fn.dataTable.ext.type.order['time-elapsed-dhms-pre'] = function(data) {
+
+        var matches = data.match(/^(\d+(?:\.\d+)?)\s*([a-z]+)/i);
+        var multipliers = {
+            ms: 1,
+            s: 1000,
+            m: 60000,
+            h: 3600000,
+            d: 86400000
+        };
+
+        if (matches) {
+            var multiplier = multipliers[matches[2].toLowerCase()];
+            return parseFloat(matches[1]) * multiplier;
+        } else {
+            return -1;
+        };
+    };
+</script>
+<link rel="stylesheet" href="css/core.css"/>
+<link rel="stylesheet" href="css/link.css"/>
+<link type="text/css" media="screen" href="css/screen.css" rel="Stylesheet"/>
+<!--CHART.JS-->
+<script src="chartjs/chart.js"></script>
+<script src="chartjs/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="chartjs/patternomaly.min.js"></script>
+<script>
+    // Register the plugin to all charts:
+    Chart.register(ChartDataLabels);
+</script>
+<!-- JQuery-UI -->
+<link type="text/css" href="jqueryui/1.11.2-start/jquery-ui.min.css" rel="Stylesheet" />
+<script type="text/javascript" src="jqueryui/1.11.2-start/jquery-ui.min.js"></script><!-- DataTables -->
+<link type="text/css" href="datatables/1.13.1/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="datatables/1.13.1/datatables.min.js"></script>
+<script type="text/javascript" src="datatables/1.13.1/time-elapsed-dhms.js"></script>
+
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+
+<script>
+    jQuery.fn.dataTable.ext.type.order['time-elapsed-dhms-pre'] = function(data) {
+
+        var matches = data.match(/^(\d+(?:\.\d+)?)\s*([a-z]+)/i);
+        var multipliers = {
+            ms: 1,
+            s: 1000,
+            m: 60000,
+            h: 3600000,
+            d: 86400000
+        };
+
+        if (matches) {
+            var multiplier = multipliers[matches[2].toLowerCase()];
+            return parseFloat(matches[1]) * multiplier;
+        } else {
+            return -1;
+        };
+    };
+</script>
+
+
+
+
+    <script class="code" type="text/javascript">$(document).ready(function () {
+
+            $("#scenario-results").DataTable({
+                "order": [[0, "asc",], [1, "asc",], [2, "asc",]],
+                "language": {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                },
+                columnDefs: [
+                    {type: 'time-elapsed-dhms', targets: 4}
+                ]
+            })
+            $("#manual-scenario-results").DataTable({
+                "order": [[0, "asc",], [1, "asc",]],
+                "language": {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                },
+            })
+
+            // Results table
+            $('#test-results-table').DataTable({
+                "order": [[0, "asc",], [3, "asc",]],
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"]]
+            });
+
+            $('#evidence-table').DataTable({
+                searching: false,
+                paging: false,
+                info: false
+            });
+
+            $(".feature-coverage-table").DataTable({
+                searching: true,
+                paging: false,
+                info: false
+            });
+
+            $(".feature-coverage-table-with-pagination").DataTable({
+                searching: true,
+                order: [[0, "asc",]],
+                pageLength: 10,
+                language: {
+                    searchPlaceholder: "Filter",
+                    search: ""
+                }
+            });
+        });
+    </script>
+</head>
+
+<body class="results-page">
+<div id="topheader">
+    <div id="topbanner">
+        <div id="logo"><a href="index.html"><img src="images/serenity-logo.png" border="0"/></a></div>
+        <div id="projectname-banner" style="float:right">
+            <span class="projectname">
+                <span class="projecttitle">Serenity and Cucumber Quick Start</span>
+                <span class="projectsubtitle"></span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="middlecontent">
+
+    <div id="contenttop">
+        <div class="middlebg">
+        <span class="breadcrumbs"><a href="index.html">Home</a>
+        </span>
+        </div>
+        <div class="rightbg"></div>
+    </div>
+
+    <div class="clr"></div>
+    <!--/* starts second table*/-->
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#"><i class="bi bi-journal-check"></i> Overall Test Results</a>
+        </li>
+        <li >
+            <a href="capabilities.html"><i class="bi bi-journal-text"></i> Requirements</a>
+        </li>
+        <li >
+            <a href="576946480b52ad056d6f5bddf874399c83582ecf90963cc074a14c70580e7d9f.html"><i class="bi bi-chat-text"></i> Features</a>
+        </li>
+    </ul>
+    <span class="date-and-time"><a href="build-info.html"><i class="bi bi-info-circle"></i></a> Report generated 15-04-2023 21:08:28</span>
+    <br style="clear:left"/>
+</div>
+    <div class="clr"></div>
+    <div id="beforetable"></div>
+    <div id="results-dashboard">
+        <div class="middlb">
+            <div class="table">
+
+                <h2>Test Results: All Tests</h2>
+                <table class='overview'>
+                    <tr>
+                        <td width="375px" valign="top">
+                            <div class="test-count-summary">
+                                <div class="test-count-title">
+                                    31 tests
+
+                                    
+
+                                </div>
+                            </div>
+
+                            <div>
+                                <ul class="nav nav-tabs">
+                                    <li class="active">
+                                        <a data-toggle="tab" href="#summary"><i class="bi bi-house-door"></i>
+                                            Summary</a>
+                                    </li>
+                                    <li>
+                                        <a data-toggle="tab" href="#tests"><i class="bi bi-speedometer"></i> Test
+                                            Results</a>
+                                    </li>
+                                </ul>
+
+
+                                <div class="card border">
+                                    <div class="tab-content" id="pills-tabContent">
+                                        <div id="summary" class="tab-pane fade in active">
+                                            <div class="container-fluid">
+                                                <div class="dashboard-charts row">
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <!-- PIE CHART -->
+                                                        <h4><i class="bi bi-pie-chart"></i> Overview</h4>
+                                                            <div class="chart-container">
+                                                                <canvas id="resultChart" height="200px"></canvas>
+                                                            </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <h4><i class="bi bi-check-square"></i> Test Outcomes</h4>
+                                                        <!-- Severity bar chart -->
+                                                        <div class="chart-container">
+                                                            <canvas id="severityChart" height="200px"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6 col-sm-9">
+                                                        <h4><i class="bi bi-graph-up"></i> Test Performance</h4>
+
+                                                        <!-- Duration bar chart -->
+                                                        <div class="chart-container">
+                                                            <canvas id="durationChart" height="200px"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                        <div class="col-lg-8 col-md-8 col-sm-9">
+                                                            <!-- High level coverage bar chart -->
+                                                            <div class="chart-container">
+                                                                <h3><i class="bi bi-reception-3"></i> Functional Coverage Overview</h3>
+                                                                <h4>Features</h4>
+                                                                <canvas id="coverageChart"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    <div class="col-lg-4 col-md-4 col-sm-6">
+    <div>
+        <h3><i class="bi bi-speedometer2"></i> Key Statistics</h3>
+        <div>
+            <table class="table table-striped table-hover">
+                <tbody>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-card-checklist"></i> Number of Scenarios
+                    </td>
+                    <td>31</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-caret-right"></i> Total Number of Test Cases
+                    </td>
+                    <td>31</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-flag-fill"></i> Tests Started
+                    </td>
+                    <td>Apr 15, 2023 21:07:23</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-stop-circle"></i> Tests
+                        Finished
+                    </td>
+                    <td>Apr 15, 2023 21:08:16</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-stopwatch"></i> Total
+                        Duration
+                    </td>
+                    <td>53s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-trophy"></i> Fastest Test
+                    </td>
+                    <td>464ms</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-skip-start"></i> Slowest
+                        Test
+                    </td>
+                    <td>5s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-stopwatch"></i> Average
+                        Execution Time
+                    </td>
+                    <td>1s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-stopwatch-fill"></i> Total
+                        Execution Time
+                    </td>
+                    <td>49s</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container-fluid">
+                                                    <div class="row">
+                                                        <div class="col-sm-11">
+                                                            <h3>Functional Coverage Details</h3>
+
+
+                                                                    <h4>Features</h4>
+
+                                                                    <table class="table feature-coverage-table" id="Feature">
+                                                                        <thead>
+                                                                        <tr>
+                                                                            <th>Feature</th>
+                                                                            <th style="width:1em;">Scenarios</th>
+                                                                            <th style="width:1em;">Test&nbsp;Cases</th>
+                                                                            <th style="width:1em;">%&nbsp;Pass</th>
+                                                                            <th style="width:1em;">Result</th>
+                                                                            <th>Coverage</th>
+                                                                        </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html" > Cart Service Fake API Store</a>
+                                                                                </td>
+                                                                                <td>10</td>
+                                                                                <td>10</td>
+                                                                                <td>100%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 100%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="10"
+                                                                                                 title="100% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="bfcea4e121e618ca3b33e87f425a6dacc2d9da97c1d6cb0e1b414fa3137a4e86.html" > Login to Fake Store API</a>
+                                                                                </td>
+                                                                                <td>1</td>
+                                                                                <td>1</td>
+                                                                                <td>100%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 100%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="1"
+                                                                                                 title="100% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html" > Products service Fake Store API</a>
+                                                                                </td>
+                                                                                <td>12</td>
+                                                                                <td>12</td>
+                                                                                <td>100%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 100%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="12"
+                                                                                                 title="100% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>
+                                                                                        <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html" > Users on Fake Store API</a>
+                                                                                </td>
+                                                                                <td>8</td>
+                                                                                <td>8</td>
+                                                                                <td>88%</td>
+                                                                                <td>
+                                                                                        <a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div class="progress">
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 87.5%; background-color: #b0cf73"
+                                                                                                 aria-valuenow="7"
+                                                                                                 title="88% success"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                            <div class="progress-bar"
+                                                                                                 role="progressbar"
+                                                                                                 style="width: 12.5%; background-color: #fd938e"
+                                                                                                 aria-valuenow="1"
+                                                                                                 title="13% failure"
+                                                                                                 aria-valuemin="0"
+                                                                                                 aria-valuemax="100">
+                                                                                            </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h3>Test Failure Overview</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h4>Most Frequent Failures</h4>
+                                                            <table class="table" style="width:40vw;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="a0ace456df350117335ad374e8d62c0d8c978db868ea1469e0c5ba32aac965ea.html"><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> Assertion error</a>
+                                                                        </td>
+                                                                        <td><span
+                                                                                    class="badge failure-badge">1</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <h4>Most Unstable Features</h4>
+                                                            <table class="table" style="width:40vw;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="failure-color top-list-title">
+                                                                            <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge failure-badge">12%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                            <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Tags</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <div>
+                                    <a href="c640772f0e252b22544997f66e195bf62619f402f5a04818d4300b0cb102b3fa.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4a3ff283930e94dafb6bc00555e2114cc86e439843342b33dedd48d2fbed0422.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="3b01017e50e076e56a962b09fdfd7d103b9e68d8fac8f3139b7d417c067b1ed6.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get User Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="0f2224901f26af0e4a296ae60719e15eaa86f1f8f912c3bbbad8781e58cb91d3.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Products With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="217bd8617ea96ef852d4f53961f80fc1e939f9342b88a1dec1548ad02d0aa9dc.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Getproductsinspecificcategorymen'sclothing&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="012021aa80b981c19efdd6e2206eb243167da2cb27f7c401fa4d3ef9e6a620db.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> User Fake Store&nbsp;&nbsp;&nbsp;7
+                                    </span>
+                                    </a>
+                                    <a href="22e12a77be2f8a4ff18ccfc036e71c905cfa994b3e01268617e4220ba34c732b.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="af7f068e8af34c3d7e57cbea40dbedb807bf7cdc4c93fbd9804610e55ec87da5.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> FakeStoreAPI&nbsp;&nbsp;&nbsp;31
+                                    </span>
+                                    </a>
+                                    <a href="61803a9338062bb37abba577355aaa38f1af00f952495911f2f2dccb5c5ea67f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Login Fake Store&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="8f92fe830b47d870fea05d237216e1af68f70122a632c937dc39537dc438a662.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Users Fake Store&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d318ed46990324d721989f26bf5557b46b9499df188fc6aa0a87249c732f2c71.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Carts Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="7f02e4ee2ed5c72fa8cdc18321e0d5a5c6eae2e84bfc1f720d68c56a9c788849.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e5bd4aff7eb5ad3e28e1f7ac52fccefdb4d680de3c5b659a4b8ad8bff04b3d8e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="2ebf2b7a4d551b94618d82cc2dd2b961f186426c224c084ce7c5d60bc510b344.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Carts In Date Range&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="5018ef4c66550373a1c60d8d7583408ab870926b2e7838fdbe4d392d1408b18a.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Products In Specific Category Jewelery&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4f496de73ff438cf05719651ae46fcd65084701a2238106c308833aa715b44ee.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Getproductsinspecificcategorywomen'sclothing&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e04a3dbad2ac93d183c48ec6c76b59404fc802f7f24f9797d6a6da6916d55c72.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="5c6b0705f0bcc2adcf73d4069c2b8d67e641d02f00a30bf346376015826da186.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="082597a707cd8846737c50c99fad9d299d160bc51240a462ab5b8112eaa5fd2e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e5e5baa01cc7004d4c7bad7912f4ade0017e166a1c5f4afd61f7a9aec5e51884.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="7e5d5ea8f41208c6163d0fe652f72fc7cf9376006a48f9dfb91df1c6ae439d64.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Cart Fake Store&nbsp;&nbsp;&nbsp;10
+                                    </span>
+                                    </a>
+                                    <a href="33979410e7d71201086dd51d2925b72de1baacd6612c6773bba8c103ee187e6e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="c3bc3849474b44791f57f4ce8e5deeae873ec09261bff7eb24d1ef0d3d9c85b9.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Product Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="051fa1dc0c2f5a1202c35a13b063ddac2e8a520e61d8802630553466e890fda9.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Products In Specific Category Electronics&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="04521c6328831e1cc3cf9f14d0a196b5fbcc80d4c673ce94388be8fd86ff332d.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="a11892b31f0e8c0a1b8d658d37e566b44acddb2b5910e16becef5f51274c54d6.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Users Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="bf1005fccf8184e1af2c2414ab800ddddd82079686909d5c8634b3dc3e8dfbc3.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="6bd6e7454d64a02f5f0370b590c8f967f97f6226072dcc9c2182f4e96aa6eb09.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Category&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4373ce5837bc0e807eccfdb8762bd2a35ab61421a6960e8f17b91f26e2d7ec66.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="9ae5860b3a7d123f5747984f5ca7ad61b44d8b6640962e8e6131e421eed9d83d.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="b15b3f5c1d8c7c176c73611761b69a6e245a6d7b6772368014c6c7fded1083dd.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Products Fake Store&nbsp;&nbsp;&nbsp;12
+                                    </span>
+                                    </a>
+                                    <a href="601bb1b3265f28963182c79882bb4c386f483e0f12eb54e044781ad6b750576f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Users With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="08e0104c152a1eeb065981f253760f14b659383140746edfcc554da053301071.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e312f4e1180de7d4a9903dbeaa1d5082811f78a7f4206a6dfc53275731665e4f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="bb26cddc13b290b58912606275564551f93d95d2c9db8f66bb0676e2c261686f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Cart With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="f86d162c97d9ece619649cee79ba04401e25930986c13a6238797610d10af079.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                                <h5 class="card-title">Context</h5>
+                            <div>
+                                    <a href="f55cf301e8f51d63aebeb8bc8dbe880df940586e2a502c7a3e24c2b639523f8f.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Windows&nbsp;&nbsp;&nbsp;31
+                                    </span>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+                                            </div>
+                                        </div>
+                                        <div id="tests" class="tab-pane fade">
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+    <div>
+        <h3><i class="bi bi-speedometer2"></i> Key Statistics</h3>
+        <div>
+            <table class="table table-striped table-hover">
+                <tbody>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-card-checklist"></i> Number of Scenarios
+                    </td>
+                    <td>31</td>
+                    <td>
+                        <i class="bi bi-stopwatch"></i> Total
+                        Duration
+                    </td>
+                    <td>53s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-caret-right"></i> Total Number of Test Cases
+                    </td>
+                    <td>31</td>
+                    <td>
+                        <i class="bi bi-trophy"></i> Fastest Test
+                    </td>
+                    <td>464ms</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-person"></i> Number of Manual Test Cases
+                    </td>
+                    <td>0</td>
+                    <td>
+                        <i class="bi bi-skip-start"></i> Slowest
+                        Test
+                    </td>
+                    <td>5s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-flag-fill"></i> Tests Started
+                    </td>
+                    <td>Apr 15, 2023 21:07:23</td>
+                    <td>
+                        <i class="bi bi-stopwatch"></i> Average
+                        Execution Time
+                    </td>
+                    <td>1s</td>
+                </tr>
+                <tr scope="row">
+                    <td>
+                        <i class="bi bi-stop-circle"></i> Tests
+                        Finished
+                    </td>
+                    <td>Apr 15, 2023 21:08:16</td>
+                    <td>
+                        <i class="bi bi-stopwatch-fill"></i> Total
+                        Execution Time
+                    </td>
+                    <td>49s</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+                                                        <h3><i class="bi bi-gear"></i> Automated Tests</h3>
+
+                                                            <table class="scenario-result-table table" id="scenario-results">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>feature</th>
+                                                                    <th class="test-name-column">Scenario</th>
+                                                                    <th>Context</th>
+                                                                    <th>Steps</th>
+                                                                    <th>Started</th>
+                                                                    <th>Total Duration</th>
+                                                                    <th>Result</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="57d333154fd9aa142f0078f87c45120c2b4e4265559e769323362b2438018d40.html">User get All Cart</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:23</td>
+                                                                            <td>3s 920ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="293d4299cb47ca3a5384b7c29269407f070ae38de80a39ee350d80b207054091.html">User get Single Cart</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:27</td>
+                                                                            <td>954ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="1bfad02749f6fa0428ccd213aefbf4e21cbd0dc2e1ffbd2c0363753ba308cab6.html">User get All Cart with limit</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:28</td>
+                                                                            <td>1s 236ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="d068ab8e6c6d1bbb2032ecf64667a529cbb746e0f38afe419ce6cc4783daf55f.html">User get cart with Sort Descending</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:29</td>
+                                                                            <td>1s 666ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="d6092d06da337605f9d61889fd8d96ecf6e35c48c14af9e0fdeac5811f903d70.html">User get Carts in Date Range</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:31</td>
+                                                                            <td>1s 527ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="b8a97379855741c597e74dd90774c3e05e0b17a9e6e9838b0d2aec02ea194b16.html">User get User Carts</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:32</td>
+                                                                            <td>935ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="6463db918aad28ea9aa8e2341b2cc7c0d6b706033d820a06dc3cb3c04d0d7801.html">User add new product to carts</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:33</td>
+                                                                            <td>1s 577ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="e59ebcf36162285d338b8908e78a2915d354d80f66e2a4e90c1b5a82394c0f50.html">User edit product carts</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:35</td>
+                                                                            <td>754ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="df5997d45ee35c29acb93f1aca625cc3d4a31f9c50c514865e1ffb1573af3b00.html">User patch product carts</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:36</td>
+                                                                            <td>1s 023ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html">Cart Service Fake API Store</a>
+                                                                            </td>
+                                                                            <td><a href="2b77476fae422966751402f94eee997dd0a3a19b0c716ce80382d81119a405ff.html">User delete product</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:37</td>
+                                                                            <td>1s 590ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="bfcea4e121e618ca3b33e87f425a6dacc2d9da97c1d6cb0e1b414fa3137a4e86.html">Login to Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="89b17e870b4ef32cc66e309de040741cdd5c95247c26b66bd178fb8c89395e2d.html">User login with correct username and password</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:38</td>
+                                                                            <td>1s 650ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="017d1652e72d9ff94c7d54e289f1a22b588bd9bf8b5a4d281d407a709dec91e5.html">User get single products</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:43</td>
+                                                                            <td>1s 688ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="2358fb33081d605002103b209807b130e87baa2cd1efbc777b4b1ba95b1bea03.html">User get all products with limit</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:45</td>
+                                                                            <td>5s 851ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="b0fd2829c73aa7b7be817b9ef6582f18237a7640e38827dac0c9e4dd33ab6f42.html">User get all products</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:51</td>
+                                                                            <td>2s 291ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="4ab74d94435f81ad9683ad089f66cdfb56903d9d5a09125a41644d45f1c24ffc.html">User get all category</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:53</td>
+                                                                            <td>464ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="4984e889856711db3598a2ae63d2d0d605e49d05fe6a299d25a1812eb5ddd06e.html">User get all products in category jewelery</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:53</td>
+                                                                            <td>1s 487ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="c5d0a2e3fe0f85a89aec16b03aaf5142ad5704f9f8bfd37a9a7aab9972f6b114.html">User get all products in category electronics</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:55</td>
+                                                                            <td>1s 422ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="197f6b4e3c619781b64b73dedb1710a7c46b4e0f4c57f6af95eadd09eff1f3e2.html">User get all products in category men's clothing</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:56</td>
+                                                                            <td>2s 108ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="b970db15c4193d076dea70a3c941651fb6411ead2372facafc9d16976b81f837.html">User get all products in category women's clothing</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:07:58</td>
+                                                                            <td>1s 463ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="bbac6da7b08ebfc729533ee7108994572c2784229368153034d00d3778c60539.html">User add new product</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:00</td>
+                                                                            <td>748ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="b2598bb796466dd50d4007223068f3bfc09a8182d13bb1936bd8ae0854e54525.html">User edit product with given id</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:01</td>
+                                                                            <td>1s 138ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="fc86119b5101d3ce224ad42f206790ec6341016461fd329d4ee336a108c615b6.html">User patch product with given id</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:02</td>
+                                                                            <td>2s 062ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html">Products service Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="e0686120fa991a5fdd576c843770b35c97853eb68690947548a6f1bf00434154.html">User delete product</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:04</td>
+                                                                            <td>836ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="619a278e4444a8e6d84947c3b5293fc0cb3bec42eafee6c48ce46f05a90c75cf.html">User get All Users</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:05</td>
+                                                                            <td>1s 192ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="1665c52460aec68cbf293f4c871939c4913b20cca5a5e29e3bbdd5c72dbb2e42.html">User get Single Users</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:06</td>
+                                                                            <td>616ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="fe44bc6f58e1686c762c6845fa90e233a55f81bdab8651a19d8b9e860552898c.html">User get All Users with limit</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:07</td>
+                                                                            <td>1s 299ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="eb9c5ed003a0210eb2e81235d9933e2c60a38cbf67618e9113554d9e112545d8.html">User get users with Sort Descending</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:08</td>
+                                                                            <td>1s 241ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result FAILURE">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="2411f963956b142c08b40f1a354f5b526356b374f8b0471209dead32189c5bbe.html">User add new Users</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:09</td>
+                                                                            <td>2s 552ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-x-circle-fill failure-icon ' title='FAILURE'></i></a> <span style="display:none">FAILURE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="9ec2784204a14c34870e832748f6223d4dd04398943473215185dc841c5eaae0.html">User edit Users</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:12</td>
+                                                                            <td>1s 572ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="3c4c715a35b5798976389a75ed5e1ccb1e7ea9bf2495bc18cafe9781ae1d16bf.html">User Patch New Users</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:13</td>
+                                                                            <td>1s 158ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr class="scenario-result SUCCESS">
+                                                                            <td>
+                                                                                    <a href="972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html">Users on Fake Store API</a>
+                                                                            </td>
+                                                                            <td><a href="a235100c2cc39c568765b1a83a82c2a2e6ff0c0a5d49514631c7800a5be5e199.html">User delete product</a></td>
+                                                                            <td><span class='context-icon'><i class='bi bi-windows' title='Windows'></i></span><span style="display:none">windows</span> </td>
+                                                                            <td>3</td>
+                                                                            <td>21:08:14</td>
+                                                                            <td>1s 620ms</td>
+                                                                            <td><a href='##beforetable'><i class='bi bi-check-circle-fill success-icon ' title='SUCCESS'></i></a> <span style="display:none">SUCCESS</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <h3><i class="bi bi-hand-index-thumb"></i> Manual Tests</h3>
+
+                                                            No manual tests were recorded
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Tags</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <div>
+                                    <a href="c640772f0e252b22544997f66e195bf62619f402f5a04818d4300b0cb102b3fa.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4a3ff283930e94dafb6bc00555e2114cc86e439843342b33dedd48d2fbed0422.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="3b01017e50e076e56a962b09fdfd7d103b9e68d8fac8f3139b7d417c067b1ed6.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get User Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="0f2224901f26af0e4a296ae60719e15eaa86f1f8f912c3bbbad8781e58cb91d3.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Products With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="217bd8617ea96ef852d4f53961f80fc1e939f9342b88a1dec1548ad02d0aa9dc.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Getproductsinspecificcategorymen'sclothing&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="012021aa80b981c19efdd6e2206eb243167da2cb27f7c401fa4d3ef9e6a620db.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> User Fake Store&nbsp;&nbsp;&nbsp;7
+                                    </span>
+                                    </a>
+                                    <a href="22e12a77be2f8a4ff18ccfc036e71c905cfa994b3e01268617e4220ba34c732b.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="af7f068e8af34c3d7e57cbea40dbedb807bf7cdc4c93fbd9804610e55ec87da5.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> FakeStoreAPI&nbsp;&nbsp;&nbsp;31
+                                    </span>
+                                    </a>
+                                    <a href="61803a9338062bb37abba577355aaa38f1af00f952495911f2f2dccb5c5ea67f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Login Fake Store&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="8f92fe830b47d870fea05d237216e1af68f70122a632c937dc39537dc438a662.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Users Fake Store&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="d318ed46990324d721989f26bf5557b46b9499df188fc6aa0a87249c732f2c71.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Carts Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="7f02e4ee2ed5c72fa8cdc18321e0d5a5c6eae2e84bfc1f720d68c56a9c788849.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e5bd4aff7eb5ad3e28e1f7ac52fccefdb4d680de3c5b659a4b8ad8bff04b3d8e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="2ebf2b7a4d551b94618d82cc2dd2b961f186426c224c084ce7c5d60bc510b344.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Carts In Date Range&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="5018ef4c66550373a1c60d8d7583408ab870926b2e7838fdbe4d392d1408b18a.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Products In Specific Category Jewelery&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4f496de73ff438cf05719651ae46fcd65084701a2238106c308833aa715b44ee.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Getproductsinspecificcategorywomen'sclothing&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e04a3dbad2ac93d183c48ec6c76b59404fc802f7f24f9797d6a6da6916d55c72.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="5c6b0705f0bcc2adcf73d4069c2b8d67e641d02f00a30bf346376015826da186.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="082597a707cd8846737c50c99fad9d299d160bc51240a462ab5b8112eaa5fd2e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e5e5baa01cc7004d4c7bad7912f4ade0017e166a1c5f4afd61f7a9aec5e51884.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="7e5d5ea8f41208c6163d0fe652f72fc7cf9376006a48f9dfb91df1c6ae439d64.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Cart Fake Store&nbsp;&nbsp;&nbsp;10
+                                    </span>
+                                    </a>
+                                    <a href="33979410e7d71201086dd51d2925b72de1baacd6612c6773bba8c103ee187e6e.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="c3bc3849474b44791f57f4ce8e5deeae873ec09261bff7eb24d1ef0d3d9c85b9.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Product Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="051fa1dc0c2f5a1202c35a13b063ddac2e8a520e61d8802630553466e890fda9.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Products In Specific Category Electronics&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="04521c6328831e1cc3cf9f14d0a196b5fbcc80d4c673ce94388be8fd86ff332d.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="a11892b31f0e8c0a1b8d658d37e566b44acddb2b5910e16becef5f51274c54d6.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Users Sort Descending Result&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="bf1005fccf8184e1af2c2414ab800ddddd82079686909d5c8634b3dc3e8dfbc3.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="6bd6e7454d64a02f5f0370b590c8f967f97f6226072dcc9c2182f4e96aa6eb09.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get All Category&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="4373ce5837bc0e807eccfdb8762bd2a35ab61421a6960e8f17b91f26e2d7ec66.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Patch Product&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="9ae5860b3a7d123f5747984f5ca7ad61b44d8b6640962e8e6131e421eed9d83d.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Add New Users&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="b15b3f5c1d8c7c176c73611761b69a6e245a6d7b6772368014c6c7fded1083dd.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Products Fake Store&nbsp;&nbsp;&nbsp;12
+                                    </span>
+                                    </a>
+                                    <a href="601bb1b3265f28963182c79882bb4c386f483e0f12eb54e044781ad6b750576f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Users With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="08e0104c152a1eeb065981f253760f14b659383140746edfcc554da053301071.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Single Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="e312f4e1180de7d4a9903dbeaa1d5082811f78a7f4206a6dfc53275731665e4f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Delete Cart&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="bb26cddc13b290b58912606275564551f93d95d2c9db8f66bb0676e2c261686f.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Get Cart With Limit&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                                    <a href="f86d162c97d9ece619649cee79ba04401e25930986c13a6238797610d10af079.html">
+                                    <span class="tag-badge badge" style="background-color:#b0cf73; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Edit Product To Carts&nbsp;&nbsp;&nbsp;1
+                                    </span>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                                <h5 class="card-title">Context</h5>
+                            <div>
+                                    <a href="f55cf301e8f51d63aebeb8bc8dbe880df940586e2a502c7a3e24c2b639523f8f.html">
+                                    <span class="tag-badge badge" style="background-color:#fd938e; margin:1em;padding:4px;">
+                                        <i class="bi bi-tag-fill"></i> Windows&nbsp;&nbsp;&nbsp;31
+                                    </span>
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="beforefooter"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="version">Serenity BDD version 3.6.21</span>
+        </div>
+    </div>
+</div>
+
+<!-- Chart data -->
+    <!-- PIE CHART -->
+    <script>
+
+        // The results pie chart
+        const outcomeChartCtx = document.getElementById('resultChart');
+
+        // Options define for display value on top of bars
+        const outcomeDetailsReports = [
+            { title: 'Passing Test Cases', link: "01f5288b80adbd3af52a8ed68a4a616d3164f750229f80da1ef344382d948835.html" },
+            { title: 'Pending Test Cases', link: "bde4fca42ca8baa0fe2eac76a241c84327dfe4ca903a1daa7cae83a1035d4745.html" },
+            { title: 'Ignored Test Cases', link: "c1b352893c3d69e59317fd825f20a75f987a859afe98fb4434f47dce70c48fd4.html" },
+            { title: 'Skipped Test Cases', link: "7409dbb9985b960343780b303d8028480bd55e9aebd855c90eff0a000e21ccc8.html" },
+            { title: 'Aborted Test Cases',  link: "91152e032be7fe762aa6823d6424278e2c72efeb7622a5e63c7bf5980b4fd8a0.html"},
+            { title: 'Failed Test Cases', link: "da5b0c51b332adf0ef993a9f086d6a1b51a3d800248ec6ae281212092f35bd37.html"  },
+            { title: 'Broken Test Cases', link: "c8a926210aeff57f8aa7ea799262d4b730915a909cd5ecd6a705b1fa13bc7aa8.html"    },
+            { title: 'Compromised Test Cases',  link: "02dd8f8ada4c10b8ebb5c1f309605a6f7c147adc21bcf5c55829855ba045ff03.html" },
+        ]
+        const outcomeData = {
+            labels: ['Passing Test Cases', 'Pending Test Cases', 'Ignored Test Cases', 'Skipped Test Cases', 'Aborted Test Cases', 'Failed Test Cases', 'Broken Test Cases', 'Compromised Test Cases','Undefined Test Cases'],
+            datasets: [{
+                label: 'Test Results',
+                fill: false,
+                data: [30,0,0,0,0,1,0,0],
+                backgroundColor: ['rgba(153,204,51,0.5)','rgba(165, 199, 238, 0.5)','rgba(168, 168, 168, 0.5)','rgba(238, 224, 152, 0.75)','rgba(255, 153, 102, 0.5)','rgba(255, 22, 49, 0.5)','rgba(255, 97, 8, 0.5)','rgba(255, 104, 255, 0.5)','rgba(83, 50, 168, 0.5)'],
+                borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                borderWidth: 1,
+            }]
+        }
+        const outcomeOptions = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        let percentage = (value * 100 / sum).toFixed(0) + "%";
+                        if (percentage === '0%' || percentage === 'NaN%') {
+                            return '';
+                        } else {
+                            return percentage;
+                        }
+                    },
+                },
+            }
+        }
+
+        const outcomeChart = new Chart(outcomeChartCtx, {
+            type: 'doughnut',
+            data: outcomeData,
+            options: outcomeOptions,
+            plugins: [
+                {
+                    id: 'text',
+                    beforeDraw: function (chart, a, b) {
+                        var width = chart.width,
+                            height = chart.height,
+                            ctx = chart.ctx;
+
+                        ctx.restore();
+                        var fontSize = (height / 200).toFixed(1);
+                        ctx.font = fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+
+                        var text = "97%"
+                        textX = 10 + Math.round((width - ctx.measureText(text).width) / 2);
+                        textY = (height / 2) - 40;
+
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+        });
+
+        function clickHandler(click) {
+            const points = outcomeChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(outcomeDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+        outcomeChartCtx.onclick = clickHandler;
+    </script>
+    <!-- END PIE CHART -->
+
+    <!-- SUMMARY BAR CHART -->
+    <script>
+
+        // The Severity bar chart
+        const severityChartCtx = document.getElementById('severityChart');
+
+        // Options define for display value on top of bars
+
+        const severityDetailsReports = [
+            { title: 'Passing Scenarios', link: "01f5288b80adbd3af52a8ed68a4a616d3164f750229f80da1ef344382d948835.html" },
+            { title: 'Pending Scenarios', link: "bde4fca42ca8baa0fe2eac76a241c84327dfe4ca903a1daa7cae83a1035d4745.html" },
+            { title: 'Ignored Scenarios', link: "c1b352893c3d69e59317fd825f20a75f987a859afe98fb4434f47dce70c48fd4.html" },
+            { title: 'Skipped Scenarios', link: "7409dbb9985b960343780b303d8028480bd55e9aebd855c90eff0a000e21ccc8.html" },
+            { title: 'Aborted Scenarios',  link: "91152e032be7fe762aa6823d6424278e2c72efeb7622a5e63c7bf5980b4fd8a0.html"},
+            { title: 'Failed Scenarios', link: "da5b0c51b332adf0ef993a9f086d6a1b51a3d800248ec6ae281212092f35bd37.html"  },
+            { title: 'Broken Scenarios', link: "c8a926210aeff57f8aa7ea799262d4b730915a909cd5ecd6a705b1fa13bc7aa8.html"    },
+            { title: 'Compromised Scenarios',  link: "02dd8f8ada4c10b8ebb5c1f309605a6f7c147adc21bcf5c55829855ba045ff03.html" },
+        ]
+        const severityData = {
+            labels: ['Passing', 'Pending', 'Ignored', 'Skipped', 'Aborted', 'Failed', 'Broken', 'Compromised'],
+            datasets: [
+                {
+                    label: 'Automated',
+                    data: [30,0,0,0,0,1,0,0],
+                    backgroundColor: ['rgba(153,204,51,0.5)','rgba(165, 199, 238, 0.5)','rgba(168, 168, 168, 0.5)','rgba(238, 224, 152, 0.75)','rgba(255, 153, 102, 0.5)','rgba(255, 22, 49, 0.5)','rgba(255, 97, 8, 0.5)','rgba(255, 104, 255, 0.5)','rgba(83, 50, 168, 0.5)'],
+                    borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                    borderWidth: 1
+                },
+                {
+                    label: 'Manual',
+                    data: [0,0,0,0,0,0,0,0],
+                    backgroundColor: ['rgba(153,204,51,0.25)','rgba(165, 199, 238, 0.25)','rgba(168, 168, 168, 0.25)','rgba(238, 224, 152, 0.375)','rgba(255, 153, 102, 0.25)','rgba(255, 22, 49, 0.25)','rgba(255, 97, 8, 0.25)','rgba(255, 104, 255, 0.25)','rgba(83, 50, 168, 0.25)'],
+                    borderColor: ['rgba(153,204,51,1)','rgba(165, 199, 238, 1)','rgba(168, 168, 168, 1)','rgba(238, 224, 152, 1)','rgba(255, 153, 102, 1)','rgba(255, 22, 49, 1)','rgba(255, 97, 8, 1)','rgba(255, 104, 255, 1)','rgba(83, 50, 168, 1)'],
+                    borderWidth: 1
+                },
+
+            ]
+        }
+        const severityOptions = {
+            responsive: true,
+            skipNull: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                }
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        if (value === 0) {
+                            return '';
+                        } else {
+                            return value;
+                        }
+                    },
+                }
+            }
+        }
+        const severityChart = new Chart(severityChartCtx, {
+            type: 'bar',
+            data: severityData,
+            options: severityOptions
+        });
+
+        function clickHandler(click) {
+            const points = severityChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(severityDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+        severityChartCtx.onclick = clickHandler;
+    </script>
+    <!-- END SUMMARY CHART -->
+
+    <!-- DURATION CHART -->
+    <script>
+
+        // Options define for display value on top of bars
+        const durationDetailsReports = [
+                {title: "Under 1 second", link: "2a5b6a7be0f08df02d8ab0b4d4c68648c2695c6c7ef0658c71de4d42b1415b18.html"},
+                {title: "1 to 10 seconds", link: "6c5512236937b92cd7a296b24edb966c2bd94be46b8910f8b129a42d6150eb25.html"},
+                {title: "10 to 30 seconds", link: "34658a1663fcf042bd7acb3325affbe4e647c8acd84d0228be2f52e1381e61b9.html"},
+                {title: "30 to 60 seconds", link: "5698da923f295f46ce5ab64ced2311fc60caa4e36b32112606d3adcfdce3f60b.html"},
+                {title: "1 to 2 minutes", link: "c68fd6639ab29c4b0ac02a78bc39f4e22557bcaa40ef14c903ac0e584626edfe.html"},
+                {title: "2 to 5 minutes", link: "3ce388ea8511800032930896a3e5ba2c4f80e46f1a10b143b67009baf212c6a0.html"},
+                {title: "5 to 10 minutes", link: "376e1536bb68812a880e84ca7a0c6d104d541788793f22a36b4462a6a9aaa344.html"},
+                {title: "10 minutes or over", link: "24bba6f5cf4f06c7d46bf8990b86c4fbc1ce4ce201644ddf42661c84031e1c90.html"},
+        ]
+        // The Severity bar chart
+        const durationChartCtx = document.getElementById('durationChart');
+
+        // Options define for display value on top of bars
+
+        const durationData = {
+            labels: ['Under 1 second','1 to 10 seconds','10 to 30 seconds','30 to 60 seconds','1 to 2 minutes','2 to 5 minutes','5 to 10 minutes','10 minutes or over'],
+            datasets: [{
+                label: 'Number of tests per duration',
+                fill: false,
+                data: ['7','24','0','0','0','0','0','0'],
+                backgroundColor: 'rgba(83, 146, 255,0.5)',
+                borderColor: 'rgba(83, 146, 255, 1)',
+            }]
+        }
+        const durationOptions = {
+            responsive: true,
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold',
+                    formatter: (value, ctx) => {
+                        if (value > 0) {
+                            return value;
+                        } else {
+                            return '';
+                        }
+                    },
+                },
+                tooltip: {
+                    enabled: true,
+                    usePointStyle: true,
+                    callbacks: {
+                        label: (data) => {
+                            return data.parsed.y + ' tests'
+                        }
+                    },
+                },
+            },
+        }
+
+        const durationChart = new Chart(durationChartCtx, {
+            type: 'bar',
+            data: durationData,
+            options: durationOptions
+        });
+
+        function durationClickHandler(click) {
+            const points = durationChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                window.open(durationDetailsReports[firstPoint.index].link, "_self")
+
+            }
+        }
+
+        durationChartCtx.onclick = durationClickHandler;
+    </script>
+    <!-- END DURATION CHART -->
+
+
+
+    <!-- COVERAGE BAR CHART -->
+    <script>
+
+        // The coverage bar chart
+        const coverageChartCtx = document.getElementById('coverageChart');
+
+        // Options define for display value on top of bars
+
+        const coverageReports = [
+            {
+                title: 'Cart Service Fake API Store',
+                result: 'SUCCESS',
+                link: "78016de289e64af17660a330d4ab23e8b4709d0fda3e22b2ffed6cd22984519c.html"
+            },
+            {
+                title: 'Login to Fake Store API',
+                result: 'SUCCESS',
+                link: "bfcea4e121e618ca3b33e87f425a6dacc2d9da97c1d6cb0e1b414fa3137a4e86.html"
+            },
+            {
+                title: 'Products service Fake Store API',
+                result: 'SUCCESS',
+                link: "e6194c481068f191a9c57e35e5ff1a20b320e33c8700be8b5e1ee1ca7682b4a9.html"
+            },
+            {
+                title: 'Users on Fake Store API',
+                result: 'FAILURE',
+                link: "972b438f7e4b3be252bb60c499213799e3e52b23fe95d098426173494d4bb413.html"
+            },
+        ]
+        const coverageData = {
+            labels: [
+                'Cart Service Fake API Store',
+                'Login to Fake Store API',
+                'Products service Fake Store API',
+                'Users on Fake Store API',
+            ],
+            datasets: [
+                {
+                    label: ['Passing Tests'],
+                    data: [10,1,12,7],
+                    backgroundColor: [ 'rgba(153,204,51,0.5)' ]
+                },
+                {
+                    label: ['Pending Tests'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(165, 199, 238, 0.5)' ]
+                },
+                {
+                    label: ['Ignored Tests'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(168, 168, 168, 0.5)' ]
+                },
+                {
+                    label: ['Skipped Tests'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(238, 224, 152, 0.75)' ]
+                },
+                {
+                    label: ['Aborted Tests'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(255, 153, 102, 0.5)' ]
+                },
+                {
+                    label: ['Failed Tests'],
+                    data: [0,0,0,1],
+                    backgroundColor: [ 'rgba(255, 22, 49, 0.5)' ]
+                },
+                {
+                    label: ['Errors'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(255, 97, 8, 0.5)' ]
+                },
+                {
+                    label: ['Compromised Tests'],
+                    data: [0,0,0,0],
+                    backgroundColor: [ 'rgba(255, 104, 255, 0.5)' ]
+                },
+            ]
+        }
+        const coverageOptions = {
+            responsive: true,
+            indexAxis: 'y',
+            // barPercentage: ,
+            barThickness: 'flex',
+            maxBarThickness: 30,
+            minBarLength: 2,
+            skipNull: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                }
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#444444',
+                    'font.weight': 'bold'
+                },
+                tooltip: {
+                    enabled: true,
+                    usePointStyle: true,
+                },
+            },
+        }
+
+        const coverageChart = new Chart(coverageChartCtx, {
+            type: 'bar',
+            data: coverageData,
+            options: coverageOptions
+        });
+
+        function coverageClickHandler(click) {
+            const points = coverageChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+            if (points.length) {
+                const firstPoint = points[0];
+                if (coverageReports[firstPoint.index].link) {
+                    window.open(coverageReports[firstPoint.index].link, "_self")
+                }
+            }
+        }
+
+        coverageChartCtx.onclick = coverageClickHandler;
+    </script>
+    <!-- END COVERAGE CHART -->
+
+</body>
+</html>
